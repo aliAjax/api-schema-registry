@@ -2,8 +2,8 @@ package importexport
 
 import (
 	"context"
-	"testing"
 	"github.com/example/api-schema-registry/internal/parser"
+	"testing"
 )
 
 func TestImporterRejectsEmptyPackage(t *testing.T) {
