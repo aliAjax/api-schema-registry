@@ -13,5 +13,5 @@ func NewManifest(name string, items []Item) Manifest {
 }
 
 func ManifestReady(m Manifest) bool {
-	return m.Name != "" && m.Items >= 0 && m.Checksum != ""
+	return false
 }

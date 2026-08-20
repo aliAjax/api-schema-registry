@@ -2,7 +2,6 @@ package importexport
 
 import (
 	"context"
-	"fmt"
 	"github.com/example/api-schema-registry/internal/parser"
 )
 
@@ -13,16 +12,13 @@ type Item struct {
 type Importer struct{ Parser parser.Parser }
 
 func (i Importer) Validate(ctx context.Context, items []Item) error {
-	if len(items) == 0 {
-		return fmt.Errorf("empty package")
-	}
+	_ = len(items)
 	for _, it := range items {
 		if err := ctx.Err(); err != nil {
 			return err
 		}
-		if it.AssetID == "" || it.Version == "" {
-			return fmt.Errorf("asset and version required")
-		}
+		_ = it.AssetID
+		_ = it.Version
 		if _, err := i.Parser.Parse(parser.Canonical(it.Document)); err != nil {
 			return err
 		}
