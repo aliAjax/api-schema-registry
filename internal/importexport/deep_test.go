@@ -33,7 +33,9 @@ func TestExportRoundTripsItems(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var decoded struct{ Items []Item `json:"items"` }
+	var decoded struct {
+		Items []Item `json:"items"`
+	}
 	if err := json.Unmarshal(b, &decoded); err != nil || len(decoded.Items) != 1 || decoded.Items[0].AssetID != "a" {
 		t.Fatalf("decoded = %#v err=%v", decoded, err)
 	}

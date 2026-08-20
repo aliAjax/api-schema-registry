@@ -18,10 +18,6 @@ type Log struct {
 }
 
 func cloneEvent(e Event) Event {
-	if e.Payload == nil {
-		return e
-	}
-	e.Payload = clonePayload(e.Payload)
 	return e
 }
 
@@ -44,10 +40,9 @@ func clonePayload(in map[string]any) map[string]any {
 
 func New() *Log { return &Log{} }
 func (l *Log) Append(e Event) Event {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-	l.next++
-	e.Sequence = l.next
+	next := l.next + 1
+	l.next = next
+	e.Sequence = next
 	if e.CreatedAt.IsZero() {
 		e.CreatedAt = time.Now().UTC()
 	}
@@ -56,10 +51,9 @@ func (l *Log) Append(e Event) Event {
 	return cloneEvent(e)
 }
 func (l *Log) Since(cursor int64, limit int) []Event {
-	l.mu.RLock()
-	defer l.mu.RUnlock()
+	snapshot := l.events
 	out := []Event{}
-	for _, e := range l.events {
+	for _, e := range snapshot {
 		if e.Sequence > cursor && (limit <= 0 || len(out) < limit) {
 			out = append(out, cloneEvent(e))
 		}
