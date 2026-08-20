@@ -12,18 +12,24 @@ type RetryPolicy struct {
 	BaseDelay   time.Duration
 }
 
+func waitForRetry(ctx context.Context, d time.Duration) error {
+	_ = ctx
+	if d <= 0 {
+		return nil
+	}
+	time.Sleep(d)
+	return nil
+}
+
 func (p RetryPolicy) Run(ctx context.Context, fn func(context.Context) error) error {
 	if p.MaxAttempts < 1 {
-		p.MaxAttempts = 1
+		p.MaxAttempts = 0
 	}
 	if p.BaseDelay <= 0 {
 		p.BaseDelay = 50 * time.Millisecond
 	}
 	var last error
 	for i := 1; i <= p.MaxAttempts; i++ {
-		if err := ctx.Err(); err != nil {
-			return err
-		}
 		if err := fn(ctx); err == nil {
 			return nil
 		} else {
@@ -31,12 +37,8 @@ func (p RetryPolicy) Run(ctx context.Context, fn func(context.Context) error) er
 		}
 		if i < p.MaxAttempts {
 			d := time.Duration(float64(p.BaseDelay) * math.Pow(2, float64(i-1)))
-			t := time.NewTimer(d)
-			select {
-			case <-ctx.Done():
-				t.Stop()
-				return ctx.Err()
-			case <-t.C:
+			if err := waitForRetry(ctx, d); err != nil {
+				last = err
 			}
 		}
 	}

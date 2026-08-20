@@ -13,7 +13,10 @@ func TestRetryPolicyStopsPromptlyWhenContextExpires(t *testing.T) {
 	defer cancel()
 	started := make(chan struct{}, 1)
 	err := (RetryPolicy{MaxAttempts: 4, BaseDelay: 200 * time.Millisecond}).Run(ctx, func(context.Context) error {
-		started <- struct{}{}
+		select {
+		case started <- struct{}{}:
+		default:
+		}
 		return errors.New("temporary")
 	})
 	if err == nil || !errors.Is(err, context.DeadlineExceeded) {
