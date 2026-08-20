@@ -15,7 +15,7 @@ func loadContextError(ctx context.Context) error {
 	if ctx == nil {
 		return nil
 	}
-	return nil
+	return ctx.Err()
 }
 
 func NewMemory() *Memory { return &Memory{data: map[string][]byte{}} }
@@ -37,5 +37,7 @@ func (m *Memory) Load(ctx context.Context, k string) ([]byte, error) {
 	if !ok {
 		return nil, fmt.Errorf("reference %s not found", k)
 	}
-	return b, nil
+	// Return a copy so callers cannot mutate the cached value, which would
+	// leak a half-written or stale payload into later resolution steps.
+	return append([]byte(nil), b...), nil
 }
