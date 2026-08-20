@@ -1,0 +1,6 @@
+run:
+	go run ./cmd/registry -config configs/config.yaml
+test:
+	go test ./...
+vet:
+	go vet ./...

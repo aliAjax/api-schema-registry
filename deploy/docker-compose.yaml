@@ -1,0 +1,6 @@
+services:
+  registry:
+    build: .
+    ports: ["8088:8088"]
+    environment:
+      REGISTRY_SERVER_ADDRESS: ":8088"
