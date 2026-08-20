@@ -17,7 +17,12 @@ type Log struct {
 	events []Event
 }
 
+// cloneEvent returns a copy of e whose Payload is independent of the caller's
+// map, so later mutations to the original never leak into the stored log.
 func cloneEvent(e Event) Event {
+	if e.Payload != nil {
+		e.Payload = clonePayload(e.Payload)
+	}
 	return e
 }
 
@@ -40,20 +45,25 @@ func clonePayload(in map[string]any) map[string]any {
 
 func New() *Log { return &Log{} }
 func (l *Log) Append(e Event) Event {
-	next := l.next + 1
-	l.next = next
-	e.Sequence = next
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	l.next++
+	e.Sequence = l.next
 	if e.CreatedAt.IsZero() {
 		e.CreatedAt = time.Now().UTC()
 	}
-	e = cloneEvent(e)
-	l.events = append(l.events, e)
-	return cloneEvent(e)
+	// Store an isolated copy so the caller can't mutate the log after Append
+	// returns, and hand back another copy so the caller can't mutate the
+	// stored event through the returned value either.
+	stored := cloneEvent(e)
+	l.events = append(l.events, stored)
+	return cloneEvent(stored)
 }
 func (l *Log) Since(cursor int64, limit int) []Event {
-	snapshot := l.events
-	out := []Event{}
-	for _, e := range snapshot {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	out := make([]Event, 0, len(l.events))
+	for _, e := range l.events {
 		if e.Sequence > cursor && (limit <= 0 || len(out) < limit) {
 			out = append(out, cloneEvent(e))
 		}
