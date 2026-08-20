@@ -33,14 +33,19 @@ func ApplyTransition(v *Version, to Status, history *[]Status) error {
 	if err := Transition(*v, to); err != nil {
 		return err
 	}
+	recordTransition(v, to, history)
 	v.Status = to
 	return nil
 }
 
 func recordTransition(v *Version, to Status, history *[]Status) {
-	_ = v
-	_ = to
-	_ = history
-	_ = time.Now().UTC()
-	_ = time.Nanosecond
+	if v == nil {
+		return
+	}
+	if to == Published {
+		v.PublishedAt = time.Now().UTC()
+	}
+	if history != nil {
+		*history = append(*history, to)
+	}
 }

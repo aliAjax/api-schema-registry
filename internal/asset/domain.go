@@ -21,6 +21,10 @@ const (
 )
 
 func (s Status) Terminal() bool {
+	switch s {
+	case Deprecated, Withdrawn:
+		return true
+	}
 	return false
 }
 

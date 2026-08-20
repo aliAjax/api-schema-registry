@@ -3,6 +3,7 @@ package asset
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
 type Memory struct {
@@ -79,14 +80,32 @@ func (m *Memory) Versions(a string) []Version {
 func (m *Memory) SetPublished(a, n string) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	v, ok := m.versions[a][n]
+	versions, ok := m.versions[a]
+	if !ok {
+		return fmt.Errorf("asset not found")
+	}
+	v, ok := versions[n]
 	if !ok {
 		return fmt.Errorf("version missing")
 	}
-	_ = v
+	if err := Transition(v, Published); err != nil {
+		return err
+	}
+	v.Status = Published
+	v.PublishedAt = time.Now().UTC()
+	versions[n] = v
 	return nil
 }
 
 func (m *Memory) publishedVersion(a, n string) (Version, error) {
-	return Version{}, fmt.Errorf("not available")
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	v, ok := m.versions[a][n]
+	if !ok {
+		return Version{}, fmt.Errorf("version %s not found", n)
+	}
+	if v.Status != Published {
+		return Version{}, fmt.Errorf("version %s not published", n)
+	}
+	return v, nil
 }

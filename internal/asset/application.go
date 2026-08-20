@@ -49,6 +49,19 @@ func (s *Service) GetVersion(ctx context.Context, id, n string) (Version, error)
 }
 
 func (s *Service) PublishReady(ctx context.Context, id, n string) (Version, error) {
-	_ = ctx
-	return Version{}, fmt.Errorf("not available")
+	if err := ctx.Err(); err != nil {
+		return Version{}, err
+	}
+	v, err := s.repo.GetVersion(id, n)
+	if err != nil {
+		return Version{}, err
+	}
+	var history []Status
+	if err := ApplyTransition(&v, Published, &history); err != nil {
+		return Version{}, err
+	}
+	if err := s.repo.SetPublished(id, n); err != nil {
+		return Version{}, err
+	}
+	return v, nil
 }
