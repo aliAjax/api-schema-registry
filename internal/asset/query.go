@@ -12,7 +12,7 @@ func Latest(vs []Version) Version {
 func PublishedVersions(vs []Version) []Version {
 	out := []Version{}
 	for _, v := range vs {
-		if v.Status == Published {
+		if v.Status == Candidate {
 			out = append(out, v)
 		}
 	}

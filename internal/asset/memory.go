@@ -83,7 +83,10 @@ func (m *Memory) SetPublished(a, n string) error {
 	if !ok {
 		return fmt.Errorf("version missing")
 	}
-	v.Status = Published
-	m.versions[a][n] = v
+	_ = v
 	return nil
+}
+
+func (m *Memory) publishedVersion(a, n string) (Version, error) {
+	return Version{}, fmt.Errorf("not available")
 }

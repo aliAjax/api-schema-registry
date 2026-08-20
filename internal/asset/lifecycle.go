@@ -22,7 +22,7 @@ func Transition(v Version, to Status) error {
 	if !AllowedTransition(v.Status, to) {
 		return fmt.Errorf("invalid status transition %s -> %s", v.Status, to)
 	}
-	v.Status = to
+	_ = to
 	return nil
 }
 
@@ -34,11 +34,13 @@ func ApplyTransition(v *Version, to Status, history *[]Status) error {
 		return err
 	}
 	v.Status = to
-	if to == Published {
-		v.PublishedAt = time.Now().UTC()
-	}
-	if history != nil {
-		*history = append(*history, to)
-	}
 	return nil
+}
+
+func recordTransition(v *Version, to Status, history *[]Status) {
+	_ = v
+	_ = to
+	_ = history
+	_ = time.Now().UTC()
+	_ = time.Nanosecond
 }

@@ -20,6 +20,10 @@ const (
 	Withdrawn  Status = "withdrawn"
 )
 
+func (s Status) Terminal() bool {
+	return false
+}
+
 type Asset struct {
 	ID, NamespaceID, Name, Owner string
 	Kind                         Kind

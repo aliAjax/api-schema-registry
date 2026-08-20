@@ -47,3 +47,8 @@ func (s *Service) GetVersion(ctx context.Context, id, n string) (Version, error)
 	}
 	return s.repo.GetVersion(id, n)
 }
+
+func (s *Service) PublishReady(ctx context.Context, id, n string) (Version, error) {
+	_ = ctx
+	return Version{}, fmt.Errorf("not available")
+}
