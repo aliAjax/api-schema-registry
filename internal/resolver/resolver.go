@@ -16,6 +16,9 @@ type Resolver struct {
 
 func New(s Source) *Resolver { return &Resolver{source: s, MaxRefs: 100} }
 func (r *Resolver) Resolve(ctx context.Context, root map[string]any) (map[string]any, error) {
+	if root == nil {
+		return nil, fmt.Errorf("root document required")
+	}
 	seen := map[string]bool{}
 	if err := r.walk(ctx, root, "#", seen, 0); err != nil {
 		return nil, err

@@ -3,18 +3,19 @@ package resolver
 import (
 	"fmt"
 	"sort"
-	"sync"
 )
 
-type Graph struct {
-	mu    sync.RWMutex
-	edges map[string][]string
+type Graph struct{ edges map[string][]string }
+
+func (g *Graph) snapshotEdges() map[string][]string {
+	return g.edges
 }
 
 func NewGraph() *Graph { return &Graph{edges: map[string][]string{}} }
 func (g *Graph) Add(a, b string) error {
-	g.mu.Lock()
-	defer g.mu.Unlock()
+	if a == "" || b == "" {
+		return fmt.Errorf("node names required")
+	}
 	if a == b {
 		return fmt.Errorf("self cycle")
 	}
@@ -40,10 +41,8 @@ func (g *Graph) path(a, b string, s map[string]bool) bool {
 	return false
 }
 func (g *Graph) Nodes() []string {
-	g.mu.RLock()
-	defer g.mu.RUnlock()
 	m := map[string]bool{}
-	for a, bs := range g.edges {
+	for a, bs := range g.snapshotEdges() {
 		m[a] = true
 		for _, b := range bs {
 			m[b] = true
