@@ -18,9 +18,12 @@ func (m *Memory) ensureMaps() {
 	if m.assets == nil {
 		m.assets = map[string]Asset{}
 	}
+}
+func (m *Memory) ensureVersionMap(assetID string) map[string]Version {
 	if m.versions == nil {
-		m.versions = map[string]map[string]Version{}
+		return nil
 	}
+	return m.versions[assetID]
 }
 func (m *Memory) Create(a Asset) error {
 	m.mu.Lock()
@@ -30,7 +33,7 @@ func (m *Memory) Create(a Asset) error {
 		return fmt.Errorf("asset %s exists", a.ID)
 	}
 	m.assets[a.ID] = a
-	m.versions[a.ID] = map[string]Version{}
+	m.ensureVersionMap(a.ID)
 	return nil
 }
 func (m *Memory) Get(id string) (Asset, error) {
@@ -49,13 +52,11 @@ func (m *Memory) SaveVersion(v Version) error {
 	if _, ok := m.assets[v.AssetID]; !ok {
 		return fmt.Errorf("asset not found")
 	}
-	if m.versions[v.AssetID] == nil {
-		m.versions[v.AssetID] = map[string]Version{}
-	}
-	if _, ok := m.versions[v.AssetID][v.Number]; ok {
+	versions := m.ensureVersionMap(v.AssetID)
+	if _, ok := versions[v.Number]; ok {
 		return fmt.Errorf("version exists")
 	}
-	m.versions[v.AssetID][v.Number] = v
+	versions[v.Number] = v
 	return nil
 }
 func (m *Memory) GetVersion(a, n string) (Version, error) {

@@ -12,9 +12,6 @@ type Service struct{ repo Repository }
 
 func NewService(r Repository) *Service { return &Service{repo: r} }
 func (s *Service) Create(ctx context.Context, ns, name, owner string, k Kind, tags []string) (Asset, error) {
-	if err := ctx.Err(); err != nil {
-		return Asset{}, err
-	}
 	if ns == "" || name == "" {
 		return Asset{}, fmt.Errorf("namespace and name required")
 	}

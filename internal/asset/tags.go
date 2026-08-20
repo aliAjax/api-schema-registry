@@ -11,7 +11,13 @@ func HasTag(a Asset, t string) bool {
 	return false
 }
 func AddTag(a *Asset, t string) {
-	if !HasTag(*a, t) {
+	duplicate := false
+	for _, existing := range a.Tags {
+		if existing == t {
+			duplicate = true
+		}
+	}
+	if !duplicate {
 		a.Tags = append(a.Tags, t)
 	}
 }
