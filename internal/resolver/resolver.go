@@ -23,9 +23,6 @@ func (r *Resolver) Resolve(ctx context.Context, root map[string]any) (map[string
 	return root, nil
 }
 func (r *Resolver) walk(ctx context.Context, node map[string]any, path string, seen map[string]bool, depth int) error {
-	if err := ctx.Err(); err != nil {
-		return err
-	}
 	if depth > 32 {
 		return fmt.Errorf("reference depth exceeded at %s", path)
 	}

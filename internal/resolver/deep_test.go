@@ -17,7 +17,7 @@ func TestMemoryLoadCopiesBytes(t *testing.T) {
 }
 
 func TestLocalSourceRejectsTraversal(t *testing.T) {
-	s := LocalSource{Files: map[string][]byte{"safe.json": []byte("ok")}}
+	s := LocalSource{Files: map[string][]byte{"safe.json": []byte("ok"), "../secret.json": []byte("bad")}}
 	if _, err := s.Load(context.Background(), "../secret.json"); err == nil {
 		t.Fatal("path traversal was accepted")
 	}
