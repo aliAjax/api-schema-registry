@@ -11,13 +11,10 @@ func HasTag(a Asset, t string) bool {
 	return false
 }
 func AddTag(a *Asset, t string) {
-	duplicate := false
 	for _, existing := range a.Tags {
-		if existing == t {
-			duplicate = true
+		if strings.EqualFold(existing, t) {
+			return
 		}
 	}
-	if !duplicate {
-		a.Tags = append(a.Tags, t)
-	}
+	a.Tags = append(a.Tags, t)
 }

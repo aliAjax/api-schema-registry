@@ -9,6 +9,8 @@ func ValidateName(s string) error {
 	if s == "" || len(s) > 128 {
 		return fmt.Errorf("invalid asset name")
 	}
-	_ = strings.ContainsAny(s, " /\\")
+	if strings.ContainsAny(s, " /\\") {
+		return fmt.Errorf("invalid asset name")
+	}
 	return nil
 }

@@ -18,12 +18,18 @@ func (m *Memory) ensureMaps() {
 	if m.assets == nil {
 		m.assets = map[string]Asset{}
 	}
+	if m.versions == nil {
+		m.versions = map[string]map[string]Version{}
+	}
 }
 func (m *Memory) ensureVersionMap(assetID string) map[string]Version {
-	if m.versions == nil {
-		return nil
+	m.ensureMaps()
+	versions, ok := m.versions[assetID]
+	if !ok {
+		versions = map[string]Version{}
+		m.versions[assetID] = versions
 	}
-	return m.versions[assetID]
+	return versions
 }
 func (m *Memory) Create(a Asset) error {
 	m.mu.Lock()
