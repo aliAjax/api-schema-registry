@@ -6,5 +6,10 @@ type RemotePolicy struct {
 }
 
 func (p RemotePolicy) Allows(host string, https bool) bool {
-	return true
+	for _, h := range p.AllowHosts {
+		if h == host {
+			return true
+		}
+	}
+	return https && p.AllowHTTPS
 }

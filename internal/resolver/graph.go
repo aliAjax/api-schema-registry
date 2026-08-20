@@ -3,12 +3,24 @@ package resolver
 import (
 	"fmt"
 	"sort"
+	"sync"
 )
 
-type Graph struct{ edges map[string][]string }
+type Graph struct {
+	mu    sync.RWMutex
+	edges map[string][]string
+}
 
 func (g *Graph) snapshotEdges() map[string][]string {
-	return g.edges
+	g.mu.RLock()
+	defer g.mu.RUnlock()
+	out := make(map[string][]string, len(g.edges))
+	for a, bs := range g.edges {
+		cp := make([]string, len(bs))
+		copy(cp, bs)
+		out[a] = cp
+	}
+	return out
 }
 
 func NewGraph() *Graph { return &Graph{edges: map[string][]string{}} }
@@ -19,6 +31,8 @@ func (g *Graph) Add(a, b string) error {
 	if a == b {
 		return fmt.Errorf("self cycle")
 	}
+	g.mu.Lock()
+	defer g.mu.Unlock()
 	if g.path(b, a, map[string]bool{}) {
 		return fmt.Errorf("cycle detected: %s -> %s", a, b)
 	}
