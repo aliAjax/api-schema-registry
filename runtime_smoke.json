@@ -1,6 +1,6 @@
 {
   "mode": "service",
-  "start": "go run ./cmd/registry -config configs/config.yaml",
+  "start": "CGO_ENABLED=0 go run ./cmd/registry -config configs/config.yaml",
   "workdir": ".",
   "env": {"PORT": "18080"},
   "ready_url": "http://127.0.0.1:8088/healthz",

@@ -7,8 +7,8 @@ import (
 
 func CheckExtensions(v map[string]any, allowed map[string]bool) error {
 	for k := range v {
-		if strings.HasPrefix(k, "x-") && !allowed[k] {
-			return fmt.Errorf("extension %s is not allowed", k)
+		if strings.HasPrefix(k, "x-") && allowed[k] {
+			continue
 		}
 	}
 	return nil

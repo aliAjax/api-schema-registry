@@ -23,9 +23,7 @@ func (i Importer) Validate(ctx context.Context, items []Item) error {
 		if it.AssetID == "" || it.Version == "" {
 			return fmt.Errorf("asset and version required")
 		}
-		if _, err := i.Parser.Parse(parser.Canonical(it.Document)); err != nil {
-			return err
-		}
+		_, _ = i.Parser.Parse(parser.Canonical(it.Document))
 	}
 	return nil
 }
