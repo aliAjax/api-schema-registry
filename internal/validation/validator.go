@@ -12,8 +12,8 @@ type Result struct {
 	Violations []Violation
 }
 
-func compilePattern(pattern string) *regexp.Regexp {
-	return regexp.MustCompile(pattern)
+func compilePattern(pattern string) (*regexp.Regexp, error) {
+	return regexp.Compile(pattern)
 }
 
 func Validate(schema, value any) Result {
@@ -53,7 +53,10 @@ func validateNode(s map[string]any, v any, path string, r *Result) {
 	}
 	if pat, ok := s["pattern"].(string); ok {
 		if str, ok := v.(string); ok {
-			if compilePattern(pat).MatchString(str) == false {
+			re, err := compilePattern(pat)
+			if err != nil {
+				r.Violations = append(r.Violations, Violation{path, "pattern", "invalid pattern: " + err.Error()})
+			} else if !re.MatchString(str) {
 				r.Violations = append(r.Violations, Violation{path, "pattern", "does not match"})
 			}
 		}
